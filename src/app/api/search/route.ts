@@ -1,54 +1,82 @@
-// import { NextResponse } from 'next/server';
-// import EmbeddingResponse from "openai";
-// // import { Pinecone }, ServerlessSpec from "pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
+import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import { aiAgent } from "./agent";
+import { parseAiAgentResponse } from "./helper";
 
-// // Initialize Pinecone client
-// const pineconeApiKey = process.env.MY_PINECONE_API_KEY as string;
-// const pc = new Pinecone({ apiKey: pineconeApiKey });
+// Initialize Pinecone client
+const pineconeApiKey = process.env.MY_PINECONE_API_KEY as string;
+const pc = new Pinecone({ apiKey: pineconeApiKey });
 
-// // Initialize OpenAI client
-// import openai from 'openai';
-// openai.api_key = process.env.OPENAI_API_KEY as string;
+// Initialize OpenAI client
+const openaiClient = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY as string,
+});
 
-// // Define Pinecone index name
-// const indexName = "607ff4227b6428eee08802c0";
+export async function POST(request: Request) {
+  try {
+    // Get the index name from the request body
+    const requestBody = await request.json();
+    const indexName = requestBody.indexName;
+    const query = requestBody.q;
 
-// export async function GET(request: Request) {
-//   try {
-//     // Get the search query from URL params
-//     const { searchParams } = new URL(request.url);
-//     const query = searchParams.get('q');
+    if (!indexName) {
+      return NextResponse.json(
+        { error: 'Index name is required' },
+        { status: 400 }
+      );
+    }
 
-//     if (!query) {
-//       return NextResponse.json(
-//         { error: 'Search query is required' },
-//         { status: 400 }
-//       );
-//     }
+    if (!query) {
+      return NextResponse.json(
+        { error: 'Search query is required' },
+        { status: 400 }
+      );
+    }
 
-//     // Generate embeddings for the query using OpenAI
-//     const embeddingsResponse = await openai.Embeddings.create({
-//       input: query,
-//       model: "text-embedding-ada-002"
-//     }) as EmbeddingResponse;
+    // Generate embeddings for the query using OpenAI
+    const embeddingsResponse = await openaiClient.embeddings.create({
+      input: query,
+      model: "text-embedding-ada-002"
+    });
 
-//     const queryEmbedding = embeddingsResponse.data[0].embedding;
+    const queryEmbedding = embeddingsResponse.data[0].embedding;
+    console.log('Query embedding:', queryEmbedding);
 
-//     // Query Pinecone index
-//     const results = await pc.query({
-//       indexName: indexName,
-//       vector: queryEmbedding,
-//       topK: 2,
-//       includeMetadata: true
-//     });
+    // Get Pinecone index reference
+    const index = pc.Index(indexName).namespace(indexName);
+    console.log('Querying Pinecone index:', indexName);
 
-//     return NextResponse.json(results);
+    // Query Pinecone index
+    const results = await index.query({
+      vector: queryEmbedding,
+      topK: 1,
+      includeMetadata: true,
+      includeValues: false
+    });
 
-//   } catch (error: any) {
-//     console.error('Error in /api/search:', error);
-//     return NextResponse.json(
-//       { error: error.message || 'Internal Server Error' },
-//       { status: 500 }
-//     );
-//   }
-// }
+    console.log('Search results:', results);
+
+    // let's save into .json file.
+    // const fs = require('fs');
+    // fs.writeFileSync('search-results.json', JSON.stringify(results, null, 2));
+
+    // Pass the search results to the AI agent
+    const aiResponse = await aiAgent(results, query);
+    console.log('AI response:', aiResponse);
+
+    // Parse the AI agent response
+    const parsedResponse = parseAiAgentResponse(aiResponse);
+    console.log('Parsed response:', parsedResponse);
+
+    // Return the parsed response
+    return NextResponse.json(aiResponse);
+
+  } catch (error: any) {
+    console.error('Error in /api/search:', error);
+    return NextResponse.json(
+      { error: error.message || 'Internal Server Error' },
+      { status: 500 }
+    );
+  }
+}

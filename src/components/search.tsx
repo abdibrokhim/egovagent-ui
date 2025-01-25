@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { Search, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,42 +12,13 @@ import SearchResults from "./search-results"
 import { getSearchSuggestions } from "@/lib/getSearchSuggestions"
 import { getOnLoadWordList } from "@/lib/getOnLoadWordList"
 import { AnimatedWordList } from "./onload-wordlist"
-
-const scrollKeyframes = `
-@keyframes scroll {
-  0% {
-    transform: translateX(0);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-`
-
-const ScrollStyle = () => (
-  <style jsx global>{`
-    ${scrollKeyframes}
-    .animate-scroll {
-      animation: scroll 30s linear infinite;
-    }
-    .animate-scroll:hover {
-      animation-play-state: paused;
-    }
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    .animate-scroll::-webkit-scrollbar {
-      display: none;
-    }
-    /* Hide scrollbar for IE, Edge and Firefox */
-    .animate-scroll {
-      -ms-overflow-style: none;  /* IE and Edge */
-      scrollbar-width: none;     /* Firefox */
-    }
-  `}</style>
-)
+import { ScrollStyle } from "./ui/scroll-style"
 
 export default function BookFinder() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  // sports: 607ff03a7b6428eee08802b8
+  const [indexName, setIndexName] = useState("607ff03a7b6428eee08802b8")
   const [notification, setNotification] = useState<{
     message: string
     variant: "default" | "error" | "success" | "info"
@@ -97,9 +69,15 @@ export default function BookFinder() {
     setSearchQuery(val);
     showNotification(`Searching for "${val}"...`, "info");
 
-    // send search query to backend
+    // send search query and indexName to backend
     try {
-      const response = await fetch(`/api/search?q=${val}`);
+      const response = await fetch(`/api/search`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ q: val, indexName: indexName }),
+      });
       const data = await response.json();
       console.log('data', data);
       setSearchResults(data);
@@ -142,12 +120,21 @@ export default function BookFinder() {
                 variant="ghost"
                 size="icon"
                 className="h-10 w-10 text-stone-400 hover:text-stone-600 focus:outline-none flex items-center justify-center"
-                onClick={() => setSearchQuery("")}
+                onClick={
+                  () => {
+                    setSearchQuery("");
+                    setSearchResults([]);
+                  }}
               >
                 <X className="h-5 w-5" />
               </Button>
             )}
-            <Button variant="default" size="icon" className="h-10 w-10">
+            <Button 
+              variant="default" 
+              size="icon" 
+              className="h-10 w-10"
+              onClick={() => handleSearch(searchQuery)}
+              >
               {loading ? loader() :
               <Search className="h-4 w-4" />}
             </Button>

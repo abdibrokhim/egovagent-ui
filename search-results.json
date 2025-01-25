@@ -1,0 +1,28 @@
+{
+  "matches": [
+    {
+      "id": "1-023-0003.json-11--7671677803781557107",
+      "score": 0.834626853,
+      "values": [],
+      "metadata": {
+        "ID": "12",
+        "address": "Тошкент шаҳри, И.Каримов кўчаси, 51-уй",
+        "email": "turdep@tashkent.uz, tashcity_tourismsport@exat.uz",
+        "filename": "1-023-0003.json",
+        "fish": "Давруков Фахриддин Умарович",
+        "geo": "https://goo.gl/maps/Qf1JmdQkuxBhYCNV9",
+        "id": "1-023-0003.json-11--7671677803781557107",
+        "ishtartibi": "0900-1800",
+        "item_index": 11,
+        "nomi": "Main Department of Tourism and cultural heritage of Tashkent",
+        "path_id": "610b6ee91a64fdd0373a8ea1",
+        "tel": "71 210-02-69",
+        "web": "http://visittashkent.uz/"
+      }
+    }
+  ],
+  "namespace": "607ff03a7b6428eee08802b8",
+  "usage": {
+    "readUnits": 6
+  }
+}
