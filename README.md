@@ -2,6 +2,8 @@
 
 ## ai search engine for data.egov.uz
 
+### or basically, a clone of https://en.app/.
+
 how to run?
 
 open terminal.
@@ -16,4 +18,4 @@ run: `npm run dev`.
 
 go to `localhost:3000`.
 
-ui is sick. i know)
+ui is sick. i know.
