@@ -28,7 +28,12 @@ export default function BookFinder() {
     setNotification({ message, variant })
   }
 
-  const [searchResults, setSearchResults] = useState<SearchResultsData>([]);
+  const [searchResults, setSearchResults] = useState<SearchResultsData>([
+    {
+      "answer": "It's 71 210-02-69",
+      "source": "6107f6622a2e256d868e8796"
+    }
+  ]);
   const categories: string[][] = getSearchSuggestions();
   const onLoadWordList: string[] = getOnLoadWordList();
 
