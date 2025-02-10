@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Notification } from "@/components/ui/notification"
 import { useEffect, useState } from "react"
 import { loader } from "@/lib/getLoader"
-import { SearchResultsData } from "./types"
+import { AiAgentResponse } from "./types"
 import SearchResults from "./search-results"
 import { getSearchSuggestions } from "@/lib/getSearchSuggestions"
 import { getOnLoadWordList } from "@/lib/getOnLoadWordList"
@@ -18,6 +18,7 @@ export default function BookFinder() {
   const [loading, setLoading] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   // sports: 607ff03a7b6428eee08802b8
+  // education: 607fea9a7b6428eee08802b2 | Ministry of Higher Education, Science and Innovations of the Republic of Uzbekistan
   const [indexName, setIndexName] = useState("607ff03a7b6428eee08802b8")
   const [notification, setNotification] = useState<{
     message: string
@@ -28,12 +29,7 @@ export default function BookFinder() {
     setNotification({ message, variant })
   }
 
-  const [searchResults, setSearchResults] = useState<SearchResultsData>([
-    {
-      "answer": "It's 71 210-02-69",
-      "source": "6107f6622a2e256d868e8796"
-    }
-  ]);
+  const [searchResults, setSearchResults] = useState<AiAgentResponse>({ answer: [] });
   const categories: string[][] = getSearchSuggestions();
   const onLoadWordList: string[] = getOnLoadWordList();
 
@@ -66,8 +62,8 @@ export default function BookFinder() {
 
   async function handleSearch(val: string) {
     // Clear search results if any
-    if (searchResults.length !== 0) {
-      setSearchResults([]);
+    if (searchResults.answer.length > 0) {
+      setSearchResults({ answer: [] });
     }
 
     setLoading(true);
@@ -128,7 +124,7 @@ export default function BookFinder() {
                 onClick={
                   () => {
                     setSearchQuery("");
-                    setSearchResults([]);
+                    setSearchResults({ answer: [] });
                   }}
               >
                 <X className="h-5 w-5" />
@@ -187,7 +183,7 @@ export default function BookFinder() {
         {loading ? (
           <AnimatedWordList words={onLoadWordList} />
         ) : (<div></div>)}
-          {searchResults.length !== 0 && (
+          {searchResults.answer.length !== 0 && (
             <SearchResults data={searchResults} />
           )}
       </div>

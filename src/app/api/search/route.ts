@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     // Get the index name from the request body
     const requestBody = await request.json();
     const indexName = requestBody.indexName;
-    const query = requestBody.q;
+    const query = requestBody.q; // example: Deputy Minister of Tourism and Sports phone number
 
     if (!indexName) {
       return NextResponse.json(
@@ -33,6 +33,9 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+
+    console.log('Received search query:', query);
+    console.log('Using Pinecone index:', indexName);
 
     // Generate embeddings for the query using OpenAI
     const embeddingsResponse = await openaiClient.embeddings.create({
@@ -70,7 +73,7 @@ export async function POST(request: Request) {
     console.log('Parsed response:', parsedResponse);
 
     // Return the parsed response
-    return NextResponse.json(aiResponse);
+    return NextResponse.json(parsedResponse);
 
   } catch (error: any) {
     console.error('Error in /api/search:', error);
